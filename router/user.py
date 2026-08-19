@@ -48,7 +48,6 @@ def update_book(id: str, book: Book):
             detail="Invalid ID"
         )
 
-
 @book.delete("/{id}")
 def delete_book(id: str):
     try:
