@@ -1,39 +1,99 @@
-**Book Library**
+# 📚 Book Library
 
-A simple Book Library application built using **FastAPI, MongoDB, and Streamlit**.
+A full-stack Book Library application built with **FastAPI, MongoDB, and Streamlit**.
 
-The project provides a REST API for managing books and a Streamlit frontend with an ecommerce-style layout for viewing, searching, adding, editing, and deleting books.
+The backend provides a REST API for user accounts and book management. The Streamlit frontend has an ecommerce-style layout for browsing, searching, adding, editing, and deleting books.
 
-**Features**
+## Features
 
-- View all books
+- User signup and login with bcrypt password hashing
+- View all books in an ecommerce-style grid
 - Search books by title
-- Add new books
-- Edit book details
-- Delete books
+- Add, edit, and delete books
 - Track book stock status
 - View individual book details
-- Store book data in MongoDB
-- Store MongoDB connection details using environment variables
-- Ecommerce-style book display using Streamlit
+- MongoDB storage, with the connection string kept in an environment variable
 
-**Technologies Used**
+## Tech Stack
 
-- Python - Program
-- FastAPI - Backend
-- MongoDB - Database
-- PyMongo - MongoDB connection
-- Pydantic - Data validation
-- Streamlit- Frontend
-- Requests- Communication between frontend and backend
-- python-dotenv- Environment variable management
+| Layer      | Technology                    |
+| ---------- | ----------------------------- |
+| Backend    | Python, FastAPI, Uvicorn      |
+| Database   | MongoDB, PyMongo              |
+| Validation | Pydantic                      |
+| Security   | bcrypt                        |
+| Frontend   | Streamlit, Requests           |
+| Config     | python-dotenv                 |
 
-**API Endpoints**
+## Project Structure
+
+```
+Book-Library-API/
+├── backend/
+│   ├── main.py
+│   ├── models/        # Pydantic models and database connection
+│   ├── router/        # API routes (books, users)
+│   ├── schemas/       # Serializers and request schemas
+│   └── requirements.txt
+├── frontend/
+│   ├── app.py         # Streamlit app
+│   └── requirements.txt
+├── docs/
+│   └── screenshots/
+└── README.md
+```
+
+## API Endpoints
 
 | Method   | Endpoint            | Purpose               |
 | -------- | ------------------- | --------------------- |
-| `POST`   | `/`                 | Create/add a new book |
+| `POST`   | `/users/signup`     | Create an account     |
+| `POST`   | `/users/login`      | Log in                |
+| `POST`   | `/`                 | Add a new book        |
 | `GET`    | `/`                 | Get all books         |
 | `GET`    | `/search?title=...` | Search books by title |
 | `PUT`    | `/{id}`             | Update a book         |
 | `DELETE` | `/{id}`             | Delete a book         |
+
+Interactive API docs are available at `http://127.0.0.1:8000/docs` when the backend is running.
+
+## Setup
+
+1. Clone the repository:
+```
+   git clone https://github.com/harrrypottter10/Book-Library-API.git
+   cd Book-Library-API
+```
+
+2. Start the backend:
+```
+   cd backend
+   pip install -r requirements.txt
+```
+   Create a `.env` file inside `backend/`:
+```
+   MONGO_URL=your_mongodb_connection_string_here
+```
+   Then run:
+```
+   python -m uvicorn main:app --reload --port 8000
+```
+
+3. In a second terminal, start the frontend:
+```
+   cd frontend
+   pip install -r requirements.txt
+   python -m streamlit run app.py
+```
+
+4. Open `http://localhost:8501` in your browser.
+
+## Screenshots
+
+<!-- Add images to docs/screenshots/ and reference them, e.g. ![Login](docs/screenshots/login.png) -->
+
+## Future Improvements
+
+- JWT authentication for the book routes
+- Docker support
+- Automated tests
