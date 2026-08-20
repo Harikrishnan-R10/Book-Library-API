@@ -1,13 +1,7 @@
-def serializeDict(item) -> dict:
-    return {
-        "id": str(item["_id"]),
-        "title": item["title"],
-        "author": item["author"],
-        "genre": item["genre"],
-        "year": item["year"],
-        "in_stock": item["in_stock"]
-    }
+from pydantic import BaseModel
 
 
-def serializelist(entity) -> list:
-    return [serializeDict(item) for item in entity]
+class User(BaseModel):
+    name: str
+    email: str
+    password: str

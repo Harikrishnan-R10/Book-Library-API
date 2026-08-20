@@ -1,62 +1,73 @@
 from fastapi import APIRouter, HTTPException
-from models.books import Book
 from models.db import conn
-from schemas.user import serializeDict, serializelist
-from bson import ObjectId
-from bson.errors import InvalidId
-
-book = APIRouter()
+from schemas.user import User
+import bcrypt
 
 
-@book.post("/")
-def create_book(book: Book):
-    result = conn.local.books.insert_one(book.model_dump())
+user = APIRouter()
+
+
+@user.post("/signup")
+def signup(user_data: User):
+
+    # Check if email already exists
+    existing_user = conn.local.users.find_one({
+        "email": user_data.email
+    })
+
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="Email already registered"
+        )
+
+    # Hash password
+    hashed_password = bcrypt.hashpw(
+        user_data.password.encode("utf-8"),
+        bcrypt.gensalt()
+    )
+
+    new_user = {
+        "name": user_data.name,
+        "email": user_data.email,
+        "password": hashed_password.decode("utf-8")
+    }
+
+    result = conn.local.users.insert_one(new_user)
+
     return {
-        "message": "Successfully Created",
+        "message": "Account created successfully",
         "id": str(result.inserted_id)
     }
 
-@book.get("/search")
-def search_book(title: str):
-    books = conn.local.books.find({
-        "title": {
-            "$regex": title,
-            "$options": "i"
-        }
+
+@user.post("/login")
+def login(user_data: User):
+
+    existing_user = conn.local.users.find_one({
+        "email": user_data.email
     })
 
-    return serializelist(books)
-
-
-@book.get("/")
-def get_books():
-    books = conn.local.books.find()
-    return serializelist(books)
-
-
-@book.put("/{id}")
-def update_book(id: str, book: Book):
-    try:
-        conn.local.books.find_one_and_update(
-            {"_id": ObjectId(id)},
-            {"$set": book.model_dump()}
-        )
-        return "Successfully Updated"
-    except InvalidId:
+    if not existing_user:
         raise HTTPException(
-            status_code=400,
-            detail="Invalid ID"
+            status_code=401,
+            detail="Invalid email or password"
         )
 
-@book.delete("/{id}")
-def delete_book(id: str):
-    try:
-        conn.local.books.find_one_and_delete(
-            {"_id": ObjectId(id)}
-        )
-        return "Successfully Deleted"
-    except InvalidId:
+    password_match = bcrypt.checkpw(
+        user_data.password.encode("utf-8"),
+        existing_user["password"].encode("utf-8")
+    )
+
+    if not password_match:
         raise HTTPException(
-            status_code=400,
-            detail="Invalid ID"
+            status_code=401,
+            detail="Invalid email or password"
         )
+
+    return {
+        "message": "Login successful",
+        "id": str(existing_user["_id"]),
+        "name": existing_user["name"],
+        "email": existing_user["email"]
+    }

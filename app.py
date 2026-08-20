@@ -22,6 +22,150 @@ if "selected_book" not in st.session_state:
 if "show_add" not in st.session_state:
     st.session_state.show_add = False
 
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if "user" not in st.session_state:
+    st.session_state.user = None
+
+if "auth_page" not in st.session_state:
+    st.session_state.auth_page = "login"
+
+
+# --------------------------------
+# Login / Signup
+# --------------------------------
+
+if not st.session_state.logged_in:
+
+    st.title("📚 Book Library")
+
+    # ----------------------------
+    # Login
+    # ----------------------------
+
+    if st.session_state.auth_page == "login":
+
+        st.subheader("🔐 Login")
+
+        email = st.text_input("Email")
+
+        password = st.text_input(
+            "Password",
+            type="password"
+        )
+
+        if st.button(
+            "Login",
+            use_container_width=True
+        ):
+
+            response = requests.post(
+                f"{API_URL}/users/login",
+                json={
+                    "name": "",
+                    "email": email,
+                    "password": password
+                }
+            )
+
+            if response.status_code == 200:
+
+                st.session_state.logged_in = True
+                st.session_state.user = response.json()
+
+                st.success("Login successful!")
+
+                st.rerun()
+
+            else:
+
+                st.error(
+                    response.json()["detail"]
+                )
+
+        st.write("Don't have an account?")
+
+        if st.button("📝 Sign Up"):
+
+            st.session_state.auth_page = "signup"
+
+            st.rerun()
+
+    # ----------------------------
+    # Signup
+    # ----------------------------
+
+    else:
+
+        st.subheader("📝 Create Account")
+
+        name = st.text_input("Name")
+
+        email = st.text_input("Email")
+
+        password = st.text_input(
+            "Password",
+            type="password"
+        )
+
+        confirm_password = st.text_input(
+            "Confirm Password",
+            type="password"
+        )
+
+        if st.button(
+            "Create Account",
+            use_container_width=True
+        ):
+
+            if not name or not email or not password:
+
+                st.warning(
+                    "Please fill all fields."
+                )
+
+            elif password != confirm_password:
+
+                st.error(
+                    "Passwords do not match."
+                )
+
+            else:
+
+                response = requests.post(
+                    f"{API_URL}/users/signup",
+                    json={
+                        "name": name,
+                        "email": email,
+                        "password": password
+                    }
+                )
+
+                if response.status_code == 200:
+
+                    st.success(
+                        "Account created successfully!"
+                    )
+
+                    st.session_state.auth_page = "login"
+
+                    st.rerun()
+
+                else:
+
+                    st.error(
+                        response.json()["detail"]
+                    )
+
+        if st.button("← Back to Login"):
+
+            st.session_state.auth_page = "login"
+
+            st.rerun()
+
+    # Stop the rest of the application
+    st.stop()
 
 # --------------------------------
 # Functions
@@ -49,10 +193,30 @@ def get_books(search=""):
 # Header
 # --------------------------------
 
-st.title("📚 Book Library")
+col1, col2 = st.columns([5, 1])
 
-st.write("Find your favorite books")
+with col1:
 
+    st.title("📚 Book Library")
+
+    st.write("Find your favorite books")
+
+with col2:
+
+    st.write(
+        f"👤 {st.session_state.user['name']}"
+    )
+
+    if st.button(
+        "Logout",
+        use_container_width=True
+    ):
+
+        st.session_state.logged_in = False
+        st.session_state.user = None
+        st.session_state.auth_page = "login"
+
+        st.rerun()
 
 # --------------------------------
 # Search + Add Book
