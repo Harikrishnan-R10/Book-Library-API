@@ -90,7 +90,9 @@ Interactive API docs are available at `http://127.0.0.1:8000/docs` when the back
 
 ## Screenshots
 
-<!-- Add images to docs/screenshots/ and reference them, e.g. ![Login](docs/screenshots/login.png) -->
+![Book grid](docs/screenshots/books.png)
+![Login](docs/screenshots/login.png)
+![API docs](docs/screenshots/api-docs.png)
 
 ## Future Improvements
 
